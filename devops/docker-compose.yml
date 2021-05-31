@@ -1,0 +1,80 @@
+version: "3.9"
+
+networks:
+  email-send:
+    driver: bridge
+
+volumes:
+  mongo:
+  mongo-express:
+  redis:
+
+services:
+  mongo:
+    networks:
+      - email-send
+    image: mongo:4.4.6
+    restart: always
+    env_file:
+      - ../.local/.env
+    ports:
+      - "27017:27017"
+
+  redis:
+    networks:
+      - email-send
+    image: redis:6.2.3-alpine
+    restart: always
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    volumes:
+      - redis:/data
+    ports:
+      - 6379:6379
+
+  mongo-express:
+    networks:
+      - email-send
+    image: mongo-express:0.54.0
+    restart: always
+    env_file:
+      - ../.local/.env
+    ports:
+      - "8081:8081"
+
+  # redis-commander:
+  #   networks:
+  #     - email-send
+  #   hostname: redis-commander
+  #   image: rediscommander/redis-commander:latest
+  #   restart: always
+  #   links:
+  #     - "redis:redis"
+  #   depends_on:
+  #     - redis
+  #   environment:
+  #     - REDIS_HOSTS=redis:redis:6379:0
+  #   ports:
+  #     - published: 8082
+  #       target: 8082
+
+  email-send:
+    build:
+      context: ..
+      dockerfile: devops/Dockerfile
+    networks:
+      - email-send
+    restart: always
+    env_file:
+      - ../.local/.env
+    links:
+      - "mongo:mongo" 
+      - "redis:redis"
+    depends_on:
+      mongo:
+        condition: service_started
+      redis:
+        condition: service_started
+    ports:
+      - published: 4000
+        target: 4000
