@@ -12,7 +12,7 @@ export type EmailDocument = Email & Document;
 @Schema()
 export class Email {
   @Field(() => ID, { description: 'ИД', nullable: false })
-  id?: number;
+  id?: string;
 
   @Field(() => Date, { description: 'Время создания', nullable: false })
   @Prop({ type: Date, default: Date.now })
@@ -23,7 +23,15 @@ export class Email {
   updatedAt?: Date;
 
   @Field(() => EMAIL_STATE, { description: 'Статус отправки', nullable: false })
-  @Prop({ type: String, enum: typeof EMAIL_STATE })
+  @Prop({
+    type: String,
+    enum: [
+      EMAIL_STATE.NOT_EXIST,
+      EMAIL_STATE.OK,
+      EMAIL_STATE.PROCEED,
+      EMAIL_STATE.REJECT,
+    ],
+  })
   state!: EMAIL_STATE;
 
   @Field(() => String, { description: 'Получатель', nullable: false })
@@ -33,12 +41,11 @@ export class Email {
   @Field(() => String, { description: 'Тема', nullable: false })
   @Prop({ type: String, required: true })
   subject!: string;
+}
 
-  /*
+export class EmailFull extends Email {
   @Field(() => String, { description: 'Текст', nullable: false })
-  @Prop({ type: String })
   body!: string;
-  */
 }
 
 export const EmailSchema = SchemaFactory.createForClass(Email);

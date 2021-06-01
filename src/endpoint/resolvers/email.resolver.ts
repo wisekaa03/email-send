@@ -22,7 +22,7 @@ export class EmailResolver {
   @Query(() => Email)
   async verifyEmail(
     @Args('id')
-    id: number,
+    id: string,
   ): Promise<EmailDocument | null> {
     return this.dbService.verifyEmail({ id });
   }

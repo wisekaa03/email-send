@@ -8,6 +8,26 @@
     "tsConfigPath": "tsconfig.json",
     "webpackConfigPath": "webpack.config.js",
     "webpack": true,
-    "deleteOutDir": true
+    "deleteOutDir": false
+  },
+  "projects": {
+    "main": {
+      "type": "application",
+      "root": "src/",
+      "entryFile": "main",
+      "sourceRoot": "src/",
+      "compilerOptions": {
+        "tsConfigPath": "tsconfig.build.json"
+      }
+    },
+    "microservice": {
+      "type": "application",
+      "root": "src/",
+      "entryFile": "microservice",
+      "sourceRoot": "src/",
+      "compilerOptions": {
+        "tsConfigPath": "tsconfig.build.json"
+      }
+    }
   }
 }

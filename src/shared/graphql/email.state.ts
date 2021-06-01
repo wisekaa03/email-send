@@ -1,6 +1,6 @@
 export enum EMAIL_STATE {
-  NOT_EXIST,
-  PROCEED,
-  REJECT,
-  OK,
+  NOT_EXIST = 'NOT_EXIST',
+  PROCEED = 'PROCEED',
+  REJECT = 'REJECT',
+  OK = 'OK',
 }

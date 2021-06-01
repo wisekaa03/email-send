@@ -1,32 +1,29 @@
-import {
-  Inject,
-  Injectable,
-  PreconditionFailedException,
-} from '@nestjs/common';
-import IORedis from 'ioredis';
-import { RedisService } from 'nestjs-redis';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import { WinstonLogger, WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { EmailInput } from '@shared/graphql';
-import { Email, EmailDocument } from '@db/schemas/email.schema';
+import { EMAIL_STATE, EmailInput } from '@shared/graphql';
+import {
+  EMAIL_MICROSERVICE,
+  EMAIL_MICROSERVICE_SEND,
+} from '@shared/interfaces';
+import { Email, EmailFull, EmailDocument } from '@db/schemas/email.schema';
 
 @Injectable()
 export class DBService {
   private logger: WinstonLogger;
-  private redisClient: IORedis.Redis;
 
   constructor(
     @Inject(WINSTON_MODULE_PROVIDER)
     private readonly winstonLogger: Logger,
-    private readonly redisService: RedisService,
+    @Inject(EMAIL_MICROSERVICE) private client: ClientProxy,
     @InjectModel(Email.name) private emailModel: Model<EmailDocument>,
   ) {
     this.logger = new WinstonLogger(this.winstonLogger);
     this.logger.setContext(DBService.name);
-    this.redisClient = redisService.getClient('email');
   }
 
   /**
@@ -36,9 +33,9 @@ export class DBService {
    * @param {number} id ИД письма
    * @returns {EMAIL_STATE} Состояние письма
    */
-  async verifyEmail({ id }: { id: number }): Promise<EmailDocument> {
+  async verifyEmail({ id }: { id: string }): Promise<EmailDocument> {
     try {
-      const email = await this.emailModel.findById(id).exec();
+      const email = await this.emailModel.findById(id);
 
       if (!email) {
         throw new Error('NOT FOUND');
@@ -48,7 +45,7 @@ export class DBService {
       return email;
     } catch (error) {
       this.logger.error(error);
-      throw error;
+      throw new NotFoundException();
     }
   }
 
@@ -64,6 +61,14 @@ export class DBService {
   }: {
     params: EmailInput;
   }): Promise<EmailDocument | null> {
-    throw new PreconditionFailedException();
+    const create: EmailFull = {
+      ...params,
+      state: EMAIL_STATE.PROCEED,
+    };
+    const email = new this.emailModel(create);
+    await email.save();
+
+    await this.client.send(EMAIL_MICROSERVICE_SEND, create).toPromise();
+    return email;
   }
 }

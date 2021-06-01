@@ -1,22 +1,21 @@
 import { Module, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 import { MongooseModule } from '@nestjs/mongoose';
-import { RedisModule } from 'nestjs-redis';
 
+import { EMAIL_MICROSERVICE } from '@shared/interfaces';
 import { Email, EmailSchema } from './schemas';
 import { DBService } from './services';
 
 @Module({
   imports: [
     MongooseModule.forRootAsync({
-      useFactory: (configService: ConfigService) => {
-        return {
-          uri: 'mongodb://mongo',
-          user: configService.get('MONGO_INITDB_ROOT_USERNAME'),
-          pass: configService.get('MONGO_INITDB_ROOT_PASSWORD'),
-          dbName: 'email',
-        };
-      },
+      useFactory: (configService: ConfigService) => ({
+        uri: 'mongodb://mongo',
+        user: configService.get('MONGO_INITDB_ROOT_USERNAME'),
+        pass: configService.get('MONGO_INITDB_ROOT_PASSWORD'),
+        dbName: 'email',
+      }),
       inject: [ConfigService],
     }),
 
@@ -24,22 +23,18 @@ import { DBService } from './services';
       {
         name: Email.name,
         schema: EmailSchema,
-        collection: 'email',
       },
     ]),
 
-    RedisModule.forRootAsync({
-      useFactory: (configService: ConfigService) => [
-        {
-          name: 'email',
-          host: configService.get('REDIS_HOST', 'redis'),
-          port: configService.get('REDIS_PORT', 6379),
-          db: 0,
-          keyPrefix: 'EMAIL:',
+    ClientsModule.register([
+      {
+        name: EMAIL_MICROSERVICE,
+        transport: Transport.REDIS,
+        options: {
+          url: 'redis://redis:6379',
         },
-      ],
-      inject: [ConfigService],
-    }),
+      },
+    ]),
   ],
 
   providers: [Logger, DBService],

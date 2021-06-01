@@ -9,7 +9,7 @@ COPY . ./
 
 # YARN
 RUN yarn install && \
-    yarn build main && \
+    yarn build microservice && \
     rm -rf node_modules && \
     yarn install --production=true
 
@@ -41,4 +41,4 @@ COPY --from=build --chown=root ./.local/.env ./.local/.env
 USER www-data:www-data
 
 # YARN START
-ENTRYPOINT [ "/wisekaa.dev/docker-entrypoint.sh", "start" ]
+ENTRYPOINT [ "/wisekaa.dev/docker-entrypoint.sh", "start:microservice" ]

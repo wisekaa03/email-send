@@ -12,4 +12,7 @@ export NODE_ENV=${NODE_ENV:=production}
 if [ -n "$*" -a "$1" = "start" ]; then
   $NODE dist/main.js
 
+elif [ -n "$*" -a "$1" = "start:microservice" ]; then
+  $NODE dist/src/microservice.js
+
 fi
