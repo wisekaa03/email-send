@@ -12,7 +12,7 @@ export type EmailDocument = Email & Document;
 @Schema()
 export class Email {
   @Field(() => ID, { description: 'ИД', nullable: false })
-  id?: string;
+  id?: any;
 
   @Field(() => Date, { description: 'Время создания', nullable: false })
   @Prop({ type: Date, default: Date.now })
@@ -43,7 +43,7 @@ export class Email {
   subject!: string;
 }
 
-export class EmailFull extends Email {
+export class EmailBody extends Email {
   @Field(() => String, { description: 'Текст', nullable: false })
   body!: string;
 }

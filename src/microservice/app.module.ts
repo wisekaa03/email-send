@@ -5,7 +5,8 @@ import { WinstonModule } from 'nest-winston';
 
 import { createWinstonOptions } from '@shared/createWinstonOptions';
 import { Email, EmailSchema } from '@db/schemas/email.schema';
-import { EmailSender } from './email.controller';
+import { EmailController } from './email.controller';
+import { EmailService } from './email.service';
 
 @Module({
   imports: [
@@ -29,7 +30,7 @@ import { EmailSender } from './email.controller';
       },
     ]),
   ],
-  controllers: [EmailSender],
-  providers: [],
+  controllers: [EmailController],
+  providers: [EmailService],
 })
 export class AppModule {}

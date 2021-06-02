@@ -32,15 +32,15 @@ services:
     ports:
       - 6379:6379
 
-  mongo-express:
-    networks:
-      - email-send
-    image: mongo-express:0.54.0
-    restart: always
-    env_file:
-      - ../.local/.env
-    ports:
-      - "8081:8081"
+  # mongo-express:
+  #   networks:
+  #     - email-send
+  #   image: mongo-express:0.54.0
+  #   restart: always
+  #   env_file:
+  #     - ../.local/.env
+  #   ports:
+  #     - "8081:8081"
 
   # redis-commander:
   #   networks:

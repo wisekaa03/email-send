@@ -10,7 +10,7 @@ import {
   EMAIL_MICROSERVICE,
   EMAIL_MICROSERVICE_SEND,
 } from '@shared/interfaces';
-import { Email, EmailFull, EmailDocument } from '@db/schemas/email.schema';
+import { Email, EmailBody, EmailDocument } from '@db/schemas/email.schema';
 
 @Injectable()
 export class DBService {
@@ -61,14 +61,19 @@ export class DBService {
   }: {
     params: EmailInput;
   }): Promise<EmailDocument | null> {
-    const create: EmailFull = {
+    const create: EmailBody = {
       ...params,
       state: EMAIL_STATE.PROCEED,
     };
     const email = new this.emailModel(create);
-    await email.save();
+    const emailDocument = await email.save();
 
-    await this.client.send(EMAIL_MICROSERVICE_SEND, create).toPromise();
+    await this.client
+      .emit(EMAIL_MICROSERVICE_SEND, {
+        ...emailDocument,
+        body: params.body,
+      })
+      .toPromise();
     return email;
   }
 }
