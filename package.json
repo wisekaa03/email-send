@@ -43,7 +43,7 @@
     "@nestjs/microservices": "^7.6.17",
     "@nestjs/mongoose": "^7.2.4",
     "@nestjs/platform-express": "^7.6.17",
-    "apollo-server": "^2.25.0",
+    "apollo-server": "^2.25.3",
     "apollo-server-core": "^2.25.0",
     "apollo-server-express": "^2.25.0",
     "class-transformer": "^0.4.0",
